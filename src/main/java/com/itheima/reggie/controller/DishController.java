@@ -13,9 +13,12 @@ import com.itheima.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,6 +29,8 @@ public class DishController {
     private DishService dishService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    RedisTemplate redisTemplate;
     //新增菜品
     @PostMapping
     public R<String> save(@RequestBody DishDto dishDto){
@@ -73,6 +78,12 @@ public class DishController {
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
         dishService.updateWithFlavors(dishDto);
+        //清理菜品所有的缓存数据
+        Set keys = redisTemplate.keys("dish_*");
+        redisTemplate.delete(keys);
+        //清理某个分类的菜品数据  当修改菜品分类时会出现bug
+        /*String key = "dish_"+dishDto.getCategoryId()+"-1";
+        redisTemplate.delete(key);*/
         return R.success("更新菜品成功");
     }
 
@@ -89,6 +100,14 @@ public class DishController {
 
     @GetMapping("/list")
     public R<List<DishDto>> getCategoryDish(Dish dish){
+        String key = "dish_" + dish.getCategoryId()+"_"+dish.getStatus();
+        //先尝试从redis获取缓存数据
+        List<DishDto> dtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
+        //如果获取到了 直接返回 不用查询数据库
+        if (dtoList!=null){
+            return R.success(dtoList);
+        }
+        //如果redis中没查到 查询数据库 并把数据放入redis中
         LambdaQueryWrapper<Dish> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Dish::getCategoryId,dish.getCategoryId());
         lqw.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
@@ -98,6 +117,8 @@ public class DishController {
             DishDto dishDto = dishService.getByIdWithFlavors(item.getId());
             return dishDto;
         })).collect(Collectors.toList());
+        //把查到的数据放入redis
+        redisTemplate.opsForValue().set(key,dishDtos,60, TimeUnit.MINUTES);
         return R.success(dishDtos);
     }
     //菜品起售
