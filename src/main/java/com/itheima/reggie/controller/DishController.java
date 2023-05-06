@@ -13,6 +13,8 @@ import com.itheima.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,12 +35,13 @@ public class DishController {
     RedisTemplate redisTemplate;
     //新增菜品
     @PostMapping
+    @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     public R<String> save(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
         dishService.saveWithFlavors(dishDto);
         return R.success("新增菜品成功");
     }
-    //菜品分页查询
+    //后台菜品分页查询
     @GetMapping("/page")
     public R<Page> page(int page,int pageSize,String name){
         Page<Dish> dishPage = new Page<>(page,pageSize);
@@ -73,8 +76,9 @@ public class DishController {
         return R.success(dishDto);
     }
 
-    //修改菜品及口味表
+    //后台修改菜品及口味表
     @PutMapping
+    @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
         dishService.updateWithFlavors(dishDto);
@@ -97,17 +101,19 @@ public class DishController {
         List<Dish> list = dishService.list(lqw);
         return R.success(list);
     }*/
-
     @GetMapping("/list")
+    @Cacheable(value = "dishCache",key = "#dish.categoryId")//先查询redis 如果查不到将返回值放入redis
     public R<List<DishDto>> getCategoryDish(Dish dish){
-        String key = "dish_" + dish.getCategoryId()+"_"+dish.getStatus();
+
+       /* String key = "dish_" + dish.getCategoryId()+"_"+dish.getStatus();
         //先尝试从redis获取缓存数据
         List<DishDto> dtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
         //如果获取到了 直接返回 不用查询数据库
         if (dtoList!=null){
             return R.success(dtoList);
         }
-        //如果redis中没查到 查询数据库 并把数据放入redis中
+        //如果redis中没查到 查询数据库 并把数据放入redis中*/
+
         LambdaQueryWrapper<Dish> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Dish::getCategoryId,dish.getCategoryId());
         lqw.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
@@ -117,11 +123,14 @@ public class DishController {
             DishDto dishDto = dishService.getByIdWithFlavors(item.getId());
             return dishDto;
         })).collect(Collectors.toList());
-        //把查到的数据放入redis
-        redisTemplate.opsForValue().set(key,dishDtos,60, TimeUnit.MINUTES);
+
+      /*  //把查到的数据放入redis
+        redisTemplate.opsForValue().set(key,dishDtos,60, TimeUnit.MINUTES);*/
+
         return R.success(dishDtos);
     }
     //菜品起售
+    @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     @PostMapping("status/1")
     public R<String> sale(@RequestParam List<Long> ids){
         log.info("修改菜品数据为{}",ids);
@@ -138,6 +147,7 @@ public class DishController {
         return R.success("修改成功");
     }
     //菜品停售
+    @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     @PostMapping("status/0")
     public R<String> dissale(@RequestParam List<Long> ids){
         log.info("修改菜品数据为{}",ids);

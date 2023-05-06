@@ -27,15 +27,15 @@ public class SetmealController {
     @Autowired
     private CategoryService categoryService;
 
-    //新增套餐
+    //后台新增套餐
     @PostMapping
-    @CacheEvict(value = "setmelCache",allEntries = true)
+    @CacheEvict(value = "setmealCache",allEntries = true)//删除redis中的套餐数据
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("套餐信息{}",setmealDto);
         setmealService.saveWithDish(setmealDto);
         return R.success("新增套餐成功!");
     }
-    //分页查询套餐
+    //后台分页查询套餐
     @GetMapping("/page")
     public R<Page<SetmealDto>> page(int page,int pageSize,String name){
         //分页查询
@@ -62,9 +62,8 @@ public class SetmealController {
         return R.success(setmealDtoPage);
     }
 
-    //删除套餐
+    //后台删除套餐
     @DeleteMapping
-    @CacheEvict(value = "setmelCache",allEntries = true)
     public R<String> delete(@RequestParam List<Long> ids){
         setmealService.deleteWithDish(ids);
         return R.success("删除套餐成功");
@@ -72,7 +71,7 @@ public class SetmealController {
 
     //展示套餐内容
     @GetMapping("/list")
-    @Cacheable(value = "setmealCache",key="#setmeal.categoryId+'_'+#setmeal.status")
+    @Cacheable(value = "setmealCache",key="#setmeal.categoryId+'_'+#setmeal.status")//把查询到套餐添加到redis
     public R<List<Setmeal>> list (Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> lqw =new LambdaQueryWrapper<>();
         lqw.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
@@ -81,8 +80,9 @@ public class SetmealController {
         List<Setmeal> list = setmealService.list(lqw);
         return R.success(list);
     }
-    //套餐起售
+    //后台套餐起售
     @PostMapping("status/1")
+    @CacheEvict(value = "setmealCache",allEntries = true)//删除redis中的套餐数据
     public R<String> sale(@RequestParam List<Long> ids){
         log.info("修改套餐数据为{}",ids);
         //查出需要修改的套餐
@@ -97,8 +97,9 @@ public class SetmealController {
         setmealService.updateBatchById(list);
         return R.success("修改成功");
     }
-    //套餐禁售
+    //后台套餐禁售
     @PostMapping("status/0")
+    @CacheEvict(value = "setmealCache",allEntries = true)//删除redis中的套餐数据
     public R<String> dissale(@RequestParam List<Long> ids){
         log.info("修改套餐数据为{}",ids);
         //查出需要修改的套餐
@@ -113,7 +114,7 @@ public class SetmealController {
         setmealService.updateBatchById(list);
         return R.success("修改成功");
     }
-    //展现单个套餐
+    //展现单个套餐(修改套餐时使用)
     @GetMapping("/{id}")
     public R<Setmeal> getbyId(@PathVariable Long id){
         log.info("展现的套餐id为{}",id);
@@ -121,6 +122,7 @@ public class SetmealController {
     }
     //修改套餐
     @PutMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)//删除redis中的套餐数据
     public R<String> update(@RequestBody Setmeal setmeal){
         setmealService.updateById(setmeal);
         return R.success("修改成功");
