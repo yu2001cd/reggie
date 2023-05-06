@@ -51,7 +51,9 @@ mybatis-plus:
       id-type: ASSIGN_ID
 
 reggie:
-  path: D:\img\
+  path: /usr/local/img/
+#  path: D:\img\
+
 
 redis:
   host: 127.0.0.1
