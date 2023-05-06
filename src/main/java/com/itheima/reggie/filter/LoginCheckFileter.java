@@ -29,7 +29,11 @@ public class LoginCheckFileter implements Filter {
                 "/backend/**",
                 "/front/**",
                 "/user/sendMsg",
-                "/user/login"
+                "/user/login",
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs"
         };
         //判断是否需要拦截
         boolean check = check(urls,requestURI);
