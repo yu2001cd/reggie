@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> implements SetmealService {
     @Autowired
     private SetmealDishService setmealDishService;
-    @Autowired
-    private CategoryService categoryService;
     @Transactional
     @Override
     public void saveWithDish(SetmealDto setmealDto) {

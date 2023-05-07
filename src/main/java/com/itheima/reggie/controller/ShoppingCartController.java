@@ -18,8 +18,11 @@ import java.util.List;
 public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
-    //查看购物车
+
     @GetMapping("/list")
+    /**
+     * 查看购物车
+     */
     public R list(){
         LambdaQueryWrapper<ShoppingCart> lqw = new LambdaQueryWrapper<>();
         lqw.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
@@ -27,8 +30,11 @@ public class ShoppingCartController {
         List<ShoppingCart> list = shoppingCartService.list(lqw);
         return R.success(list);
     }
-    //添加菜品
+
     @PostMapping("/add")
+    /**
+     * 添加菜品
+     */
     public R add(@RequestBody ShoppingCart shoppingCart){
         log.info("购物车数据{}",shoppingCart);
         //设置用户id
@@ -59,8 +65,11 @@ public class ShoppingCartController {
         }
         return R.success(shoppingCart1);
     }
-    //减少菜品
+
     @PostMapping("/sub")
+    /**
+     * 减少菜品
+     */
     public R sub(@RequestBody ShoppingCart shoppingCart){
         Long dishId =  shoppingCart.getDishId();
         Long setmealId = shoppingCart.getSetmealId();
@@ -84,8 +93,11 @@ public class ShoppingCartController {
         }
         return R.success(shoppingCart1);
     }
-    //清空购物车
+
     @DeleteMapping("/clean")
+    /**
+     * 清空购物车
+     */
     public R<String> clean(){
         LambdaQueryWrapper<ShoppingCart> lqw = new LambdaQueryWrapper<>();
         lqw.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());

@@ -24,6 +24,9 @@ public class CommonController {
     @Value("${reggie.path}")//从yml文件导入
     private String basePath;
     @PostMapping("/upload")
+    /**
+     * 上传图片
+     */
     public R upload(MultipartFile file){
         //file是一个临时文件 需转存到指定位置 否则请求结束后会删除
         log.info(file.toString());
@@ -44,6 +47,9 @@ public class CommonController {
     }
 
     @GetMapping("/download")
+    /**
+     * 下载图片
+     */
     public void download(String name, HttpServletResponse response){
         //输入流
         try {

@@ -29,14 +29,20 @@ public class OrdersController {
     private OrderSercie orderSercie;
     @Autowired
     private OrderdetailService orderdetailService;
-    //用户下单
+
     @PostMapping("/submit")
+    /**
+     * 用户下单
+     */
     public R<String> submit(@RequestBody Orders orders){
         orderSercie.submit(orders);
         return R.success("下单成功");
     }
-    //查询订单
+
     @GetMapping("/userPage")
+    /**
+     * 查询订单
+     */
     public R<Page<OrdersDto>> getorders(int page,int pageSize){
         //查询用户对应的订单
         Page<Orders> ordersPage = new Page<>(page,pageSize);
@@ -64,8 +70,11 @@ public class OrdersController {
 
         return R.success(ordersDtoPage);
     }
-    //后台查询订单
+
     @GetMapping("/page")
+    /**
+     * 后台查询订单
+     */
     public R<Page<Orders>> orders(int page, int pageSize, String number,
                                   @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
                                   @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime){
@@ -81,8 +90,11 @@ public class OrdersController {
         orderSercie.page(ordersPage,lqw);
         return R.success(ordersPage);
     }
-    //订单状态改变
+
     @PutMapping
+    /**
+     * 后台订单状态改变
+     */
     public R<String> diliver(@RequestBody Orders orders){
         Orders orders1 = orderSercie.getById(orders.getId());
         orders1.setStatus(orders.getStatus());

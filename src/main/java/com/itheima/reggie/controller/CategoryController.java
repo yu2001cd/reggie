@@ -22,8 +22,10 @@ public class CategoryController {
     private CategoryService categoryService;
 
 
-    //查询套餐和菜品分类
     @GetMapping("/page")
+    /**
+     * 查询套餐和菜品分类
+     */
     public R select(Integer page,Integer pageSize){
         log.info("执行分类分页查询页码{},每页长度{}",page,pageSize);
         Page categoryPage = new Page(page,pageSize);
@@ -34,31 +36,39 @@ public class CategoryController {
     }
 
 
-    //新增套餐和菜品分类
     @PostMapping
+    /**
+     * 新增套餐和菜品分类
+     */
     public R insert(@RequestBody Category category){
         categoryService.save(category);
         return R.success("新增成功！");
     }
 
-    //根据id删除
     @DeleteMapping
+    /**
+     * 根据id删除分类
+     */
     public R deleteById(Long ids){
         log.info("通过id删除，id为{}",ids);
         categoryService.removeById(ids);
         return R.success("删除成功");
     }
 
-    //修改
     @PutMapping
+    /**
+     * 修改分类
+     */
     public R update(@RequestBody Category category){
         log.info("更新分类{}",category);
         categoryService.updateById(category);
         return R.success("修改成功");
     }
 
-    //下拉列表
     @GetMapping("/list")
+    /**
+     * 下拉列表
+     */
     public R<List<Category>> list(Category category){
         LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
         lqw.eq(category.getType()!=null,Category::getType,category.getType());

@@ -25,10 +25,10 @@ public class AddressBookController {
     @Autowired
     private AddressBookService addressBookService;
 
-    /**
-     * 新增
-     */
     @PostMapping
+    /**
+     * 新增地址
+     */
     public R<AddressBook> save(@RequestBody AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getCurrentId());
         log.info("addressBook:{}", addressBook);
@@ -110,14 +110,19 @@ public class AddressBookController {
         return R.success(addressBookService.list(queryWrapper));
     }
 
-    //修改地址
+
     @PutMapping
+    /**
+     * 修改地址
+     */
     public R<String> edit(@RequestBody AddressBook addressBook){
         addressBookService.updateById(addressBook);
         return R.success("修改成功");
     }
-    //删除地址
     @DeleteMapping
+    /**
+     * 删除地址
+     */
     public R<String> delete(Long ids){
         //判断地址是不是默认地址
         AddressBook addressBook = addressBookService.getById(ids);

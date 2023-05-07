@@ -22,11 +22,13 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-@EnableSwagger2
-@EnableKnife4j
+@EnableSwagger2//生成接口文档
+@EnableKnife4j//生成接口文档
 public class WebMvcConfig extends WebMvcConfigurationSupport {
-    //设置动态资源映射 springboot项目可直接放到static目录下
     @Override
+    /**
+     * 设置动态资源映射 springboot项目可直接放到static目录下
+     */
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("开始静态资源映射");
         registry.addResourceHandler("/backend/**").addResourceLocations("classpath:/backend/");
@@ -35,8 +37,10 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    //拓展mvc的消息转换器
     @Override
+    /**
+     * 拓展mvc的消息转换器
+     */
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters){
         //创建消息转换器对象
         MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();

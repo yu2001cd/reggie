@@ -33,16 +33,22 @@ public class DishController {
     private CategoryService categoryService;
     @Autowired
     RedisTemplate redisTemplate;
-    //新增菜品
+
     @PostMapping
     @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
+    /**
+     * 后台新增菜品
+     */
     public R<String> save(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
         dishService.saveWithFlavors(dishDto);
         return R.success("新增菜品成功");
     }
-    //后台菜品分页查询
+
     @GetMapping("/page")
+    /**
+     * 后台菜品分页查询
+     */
     public R<Page> page(int page,int pageSize,String name){
         Page<Dish> dishPage = new Page<>(page,pageSize);
         Page<DishDto> dishDtoPage = new Page<>();
@@ -69,16 +75,22 @@ public class DishController {
 
         return R.success(dishDtoPage);
     }
-    //通过id查询菜品信息和对应的口味信息
+
     @GetMapping("/{id}")
+    /**
+     * 通过id查询菜品信息和对应的口味信息
+     */
     public R<DishDto> get(@PathVariable Long id){
         DishDto dishDto = dishService.getByIdWithFlavors(id);
         return R.success(dishDto);
     }
 
-    //后台修改菜品及口味表
+
     @PutMapping
     @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
+    /**
+     * 后台修改菜品及口味表
+     */
     public R<String> update(@RequestBody DishDto dishDto){
         log.info(dishDto.toString());
         dishService.updateWithFlavors(dishDto);
@@ -103,6 +115,9 @@ public class DishController {
     }*/
     @GetMapping("/list")
     @Cacheable(value = "dishCache",key = "#dish.categoryId")//先查询redis 如果查不到将返回值放入redis
+    /**
+     * 根据菜品类型查询菜品
+     */
     public R<List<DishDto>> getCategoryDish(Dish dish){
 
        /* String key = "dish_" + dish.getCategoryId()+"_"+dish.getStatus();
@@ -129,9 +144,13 @@ public class DishController {
 
         return R.success(dishDtos);
     }
-    //菜品起售
+
+
     @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     @PostMapping("status/1")
+    /**
+     * 菜品起售
+     */
     public R<String> sale(@RequestParam List<Long> ids){
         log.info("修改菜品数据为{}",ids);
         //查出需要修改的菜品
@@ -146,9 +165,13 @@ public class DishController {
         dishService.updateBatchById(list);
         return R.success("修改成功");
     }
-    //菜品停售
+
+
     @CacheEvict(value = "dishCache",allEntries = true)//删除redis中的菜品数据
     @PostMapping("status/0")
+    /**
+     * 菜品停售
+     */
     public R<String> dissale(@RequestParam List<Long> ids){
         log.info("修改菜品数据为{}",ids);
         //查出需要修改的菜品
@@ -163,8 +186,11 @@ public class DishController {
         dishService.updateBatchById(list);
         return R.success("修改成功");
     }
-    //菜品删除
+
     @DeleteMapping
+    /**
+     * 菜品删除
+     */
     public R<String> delete(@RequestParam List<Long> ids){
         dishService.deleteWithFlavors(ids);
         return R.success("删除套餐成功");

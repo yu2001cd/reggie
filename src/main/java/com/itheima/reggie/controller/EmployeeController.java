@@ -20,14 +20,15 @@ import java.time.LocalDateTime;
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
-    //员工登录
-    /*
-    * 根据页面提供username查询数据库
-    * 返回值为空返回登录失败
-    * 返回值密码错误返回登录失败
-    * 员工状态为禁用返回结果为禁用
-    * 登录成功，把员工id存入session*/
+
     @PostMapping ("/login")
+    /**
+     * 根据页面提供username查询数据库
+     * 返回值为空返回登录失败
+     * 返回值密码错误返回登录失败
+     * 员工状态为禁用返回结果为禁用
+     * 登录成功，把员工id存入session
+     */
     public R login(HttpServletRequest request, @RequestBody Employee employee){
         String password =employee.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());//md5加密
@@ -47,15 +48,20 @@ public class EmployeeController {
         return R.success(emp);
     }
 
-    //退出登录
+
     @PostMapping("/logout")
+    /**
+     * 退出登录
+     */
     public R logout(HttpServletRequest httpServletRequest){
-        httpServletRequest.getSession().removeAttribute("employee");
+        httpServletRequest.getSession().removeAttribute("employee");//将员工id移出seesion
         return R.success("退出成功");
     }
 
-    //新增员工
     @PostMapping
+    /**
+     * 新增员工
+     */
     public R save(HttpServletRequest request, @RequestBody Employee employee){
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));//设置密码
         /*Long createid = (Long)request.getSession().getAttribute("employee");//获取操作员工id
@@ -67,8 +73,11 @@ public class EmployeeController {
         return R.success("新增员工成功");
     }
 
-    //分页查询
+
     @GetMapping("/page")
+    /**
+     * 分页查询
+     */
     public R<Page> pageSelect(int page,int pageSize,String name){
         log.info("页数{},每页长度{},名字{}",page,pageSize,name);
         Page pageinfo = new Page(page,pageSize);//构造分页构造器
@@ -79,8 +88,11 @@ public class EmployeeController {
         return R.success(pageinfo);
     }
 
-    //根据id修改
+
     @PutMapping
+    /**
+     * 根据id修改
+     */
     public R<String> update(@RequestBody Employee employee,HttpServletRequest request){
         /*Long updateId = (Long)request.getSession().getAttribute("employee");
         employee.setUpdateUser(updateId);//更新人
@@ -89,8 +101,10 @@ public class EmployeeController {
         return R.success("修改成功！");
     }
 
-    //根据id查询
     @GetMapping("/{id}")
+    /**
+     * 根据id查询
+     */
     public R<Employee> getById(@PathVariable Long id){
         log.info("根据id{}查询信息",id);
         Employee employee = employeeService.getById(id);

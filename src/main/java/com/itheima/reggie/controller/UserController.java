@@ -27,8 +27,10 @@ public class UserController {
     private UserService userService;
     @Autowired
     private RedisTemplate redisTemplate;
-    //发送验证码
     @PostMapping("/sendMsg")
+    /**
+     * 发送验证码
+     */
     public R<String> sendMsg(@RequestBody User user, HttpSession session){
         //获取手机号
         String phone = user.getPhone();
@@ -49,8 +51,11 @@ public class UserController {
         }
         return R.error("验证码发送失败");
     }
-    //登录
+
     @PostMapping("/login")
+    /**
+     * 登录
+     */
     public R<User> sendMsg(@RequestBody Map user, HttpSession session){
         log.info("登录信息为{}",user);
         String phone = (String) user.get("phone");
@@ -80,8 +85,11 @@ public class UserController {
         return R.error("登录失败");
     }
 
-    //退出登录
+
     @PostMapping("/loginout")
+    /**
+     * 退出登录
+     */
     public R<String> loginout(HttpSession httpSession){
         httpSession.removeAttribute("user");
         return R.success("已退出登录");

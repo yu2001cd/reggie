@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
+//标准返回类
 public class R<T> implements Serializable {//使类可以序列化
 
     private Integer code; //编码：1成功，0和其它数字为失败
